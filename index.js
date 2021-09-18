@@ -1,44 +1,21 @@
-// create a server that sends a get request from "/" and sends "hi from node"
-require("dotenv")=config();
+const PORT = 3001;
 const express = require("express");
-const { client } = require("./db");
-const userRouter = require("./userRouter");
-const jwt = require("jsonwebtoken")
 const server = express();
-server.use(express.json());
 
-//create middleware to check if theres a token and if there is the create new property on req.user and add user info
+const bodyParser = require("body-parser");
+server.use(bodyParser.json());
+const morgan = require("morgan");
+server.use(morgan("dev"));
 
-server.use((req,res,next)=>{
-    if(!req.headers.authorization){
-        return next()
-    }
-    const token = req.headers.authorization.substring(7);
-    const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
-    console.log("user logged in as:", decodedToken);
-    req.user = decodedToken
-    next();
-    
-})
-server.use("/users", userRouter);
-
-server.get("/", (req, res) => {
-  res.send("Hi From Node!");
-});
-
-server.use((error, req, res, next) => {
-  res.send(error);
-});
-// POST route for /users/register and send message "will register user":
-
-// server.post("/users/register", (req, res) => {
-//   res.send("will register user");
-// });
-// server.post("/users/login", (req, res) => {
-//   res.send("Will login user");
-// });
-
+const apiRouter = require("./api");
+const { client } = require("./db");
 client.connect();
-server.listen(2000, () => {
-  console.log("server is running!");
+server.listen(PORT, () => {
+  console.log("The server is up on port", PORT);
+});
+server.use("/api", apiRouter);
+server.use((req, res, next) => {
+  console.log("<___Body Logger START___>");
+  console.log(req.body);
+  console.log("<___Body Logger END___>");
 });
