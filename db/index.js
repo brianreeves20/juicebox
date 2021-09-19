@@ -1,11 +1,13 @@
 const { Client } = require("pg"); // imports the pg module
 
-const client = new Client({
-  user: "postgres",
-  password: "Abedith1990",
-  database: "juiceboxdev",
-  port: 3000,
-});
+const client = new Client(
+  process.env.DATABASE_URL || {
+    user: "postgres",
+    password: "Abedith1990",
+    database: "juiceboxdev",
+    port: 3000,
+  }
+);
 
 /**
  * USER Methods
